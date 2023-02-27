@@ -1,0 +1,1 @@
+# automacao_rotulagem_simplificada
