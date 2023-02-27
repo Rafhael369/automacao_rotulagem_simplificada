@@ -1,16 +1,15 @@
 import cv2
-import queue
 import os
-import threading
 import time
-import numpy as np
 from darknet.darknet import *
 from dotenvs.load_dotenvs import *
 from pybboxes import BoundingBox
 
 model = models[0]
 COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
-def camera0(frame, id_camera, model):
+diretorio = "imagens/"
+
+def camera0(frame, id_camera, model, filename):
     classes, scores, boxes = model.detect(frame, float(os.getenv("CONFIDENCE_THRESHOLD")), float(os.getenv("NMS_THRESHOLD")))
         
     for (classid, score, box) in zip(classes, scores, boxes):
@@ -21,11 +20,8 @@ def camera0(frame, id_camera, model):
         cv2.rectangle(frame[0], box, color, 1)
         cv2.putText(frame[0], label, (box[0], box[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         cv2.circle(frame[0], centro_box, 5, [0, 0, 0], -1)
-    
-    caminho_voc = "carro"
 
-    # for (classid, box) in zip(classes, boxes):
-    f = open(f"{caminho_voc}.txt", "w")
+    f = open(f"{diretorio}{filename}.txt", "w")
     f.write(f"{len(boxes)}")
     for box in boxes:
         my_coco_box = [box[0], box[1], box[2], box[3]]
@@ -36,5 +32,20 @@ def camera0(frame, id_camera, model):
         f.write(f"\n{voc_txt}")
     f.close()
 
-imagem = cv2.imread("carro.jpg")
-camera0(imagem, 0, model)
+# imagem = cv2.imread("carro.jpg")
+# camera0(imagem, 0, model)
+start_time = time.time()
+contador = 0
+# lendo as imagens do diretorio
+imagens_jpg = [filename for filename in os.listdir(diretorio) if filename.endswith(".jpg")]
+
+for filename in imagens_jpg:
+    imagem = cv2.imread(f"{diretorio}{filename}")
+    camera0(imagem, 0, model, filename.split(".")[0])
+
+    contador += 1
+
+    # Calcula o tempo decorrido e estimativa do tempo restante
+    elapsed_time = time.time() - start_time
+    tempo_restante = (elapsed_time / contador) * (len(os.listdir(diretorio)) - contador)
+    print(f"Processado {contador} de {len(imagens_jpg)} imagens. Tempo restante estimado: {tempo_restante:.2f} segundos.")

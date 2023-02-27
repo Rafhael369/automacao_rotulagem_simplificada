@@ -1,0 +1,4 @@
+imagens/*
+models/yolov4_tiny/*
+
+!models/yolov4_tiny/.gitkeep
