@@ -12,6 +12,8 @@ diretorio = "imagens/"
 def camera0(frame, id_camera, model, filename):
     classes, scores, boxes = model.detect(frame, float(os.getenv("CONFIDENCE_THRESHOLD")), float(os.getenv("NMS_THRESHOLD")))
         
+    f = open(f"{diretorio}{filename}.txt", "a")
+    f.write(f"{len(boxes)}")
     for (classid, score, box) in zip(classes, scores, boxes):
         color = COLORS[int(classid) % len(COLORS)]
         label = str(class_names[classid])
@@ -21,9 +23,8 @@ def camera0(frame, id_camera, model, filename):
         cv2.putText(frame[0], label, (box[0], box[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         cv2.circle(frame[0], centro_box, 5, [0, 0, 0], -1)
 
-    f = open(f"{diretorio}{filename}.txt", "w")
-    f.write(f"{len(boxes)}")
-    for box in boxes:
+        
+        # for box in boxes:
         my_coco_box = [box[0], box[1], box[2], box[3]]
         coco_bbox = BoundingBox.from_coco(*my_coco_box)
         voc_bbox = coco_bbox.to_voc()
